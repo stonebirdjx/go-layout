@@ -1,0 +1,14 @@
+app:
+  name: "go-layout-server"
+  version: "1.0.0"
+  env: "development"
+
+server:
+  http:
+    addr: ":8080"
+  grpc:
+    addr: ":9090"
+
+log:
+  level: "debug"
+  format: "json"
