@@ -1,5 +1,5 @@
 /*
-Copyright 2026 stonebirdjx.
+Copyright 2018 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,10 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package signals
 
-import "github.com/stonebirdjx/go-layout/cmd"
+import (
+	"os/signal"
+	"testing"
 
-func main() {
-	cmd.Execute()
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+)
+
+func TestSource(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Runtime Signal Suite")
 }
+
+var _ = BeforeSuite(func() {
+	signal.Reset()
+})

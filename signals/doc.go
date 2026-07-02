@@ -14,10 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
-
-import "github.com/stonebirdjx/go-layout/cmd"
-
-func main() {
-	cmd.Execute()
-}
+// Package signals contains libraries for handling signals to gracefully
+// shutdown the manager in combination with Kubernetes pod graceful termination
+// policy.
+package signals
