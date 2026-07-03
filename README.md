@@ -1,6 +1,12 @@
 # go-layout
 golang项目工程化
 对于一个后端应用而言，它的启动和退出通常都是一些固定的动作
+
+灵感来自 [controller-runtime](https://github.com/kubernetes-sigs/controller-runtime)
+
+# 起停流程
+![](./assets/images/bootstrap.drawio.png)
+
 ## 启动过程
 ### 1.启动环境准备
 操作系统检查：确保依赖的系统资源、端口、文件权限等已就绪。
