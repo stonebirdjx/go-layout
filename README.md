@@ -7,6 +7,9 @@ golang项目工程化
 # 起停流程
 ![](./assets/images/bootstrap.drawio.png)
 
+# 项目架构
+![](./assets/images/arch.drawio.png)
+
 ## 启动过程
 ### 1.启动环境准备
 操作系统检查：确保依赖的系统资源、端口、文件权限等已就绪。
