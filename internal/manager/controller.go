@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package manager provides a framework for managing the lifecycle of the application.
-// It is inspired by controller-runtime and provides a simple and extensible way to manage the application lifecycle.
 package manager
 
 import (
@@ -24,12 +22,10 @@ import (
 	"github.com/stonebirdjx/go-layout/internal/config"
 )
 
-type Manager interface {
-	Start(ctx context.Context) error
+type controller struct {
+	cfg *config.Config
 }
 
-func NewManager(cfg *config.Config) Manager {
-	return &controller{
-		cfg: cfg,
-	}
+func (c *controller) Start(ctx context.Context) error {
+	return nil
 }

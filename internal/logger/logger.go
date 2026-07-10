@@ -1,41 +1,52 @@
 package logger
 
 import (
-	"log/slog"
 	"os"
+	"strings"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/stonebirdjx/go-layout/internal/config"
 )
 
-// Init initializes the global slog logger based on configuration.
-func Init(cfg *config.LogConfig) *slog.Logger {
-	var level slog.Level
-	switch cfg.Level {
+// Init initializes the global zap logger based on configuration.
+func Init(cfg *config.LogOptions) *zap.SugaredLogger {
+	var level zapcore.Level
+	switch strings.ToLower(cfg.Level) {
 	case "debug":
-		level = slog.LevelDebug
+		level = zapcore.DebugLevel
 	case "info":
-		level = slog.LevelInfo
+		level = zapcore.InfoLevel
 	case "warn":
-		level = slog.LevelWarn
+		level = zapcore.WarnLevel
 	case "error":
-		level = slog.LevelError
+		level = zapcore.ErrorLevel
 	default:
-		level = slog.LevelInfo
+		level = zapcore.InfoLevel
 	}
 
-	opts := &slog.HandlerOptions{
-		Level: level,
-	}
+	var encoder zapcore.Encoder
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	var handler slog.Handler
 	if cfg.Format == "json" {
-		handler = slog.NewJSONHandler(os.Stdout, opts)
+		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	} else {
-		handler = slog.NewTextHandler(os.Stdout, opts)
+		encoderConfig = zap.NewDevelopmentEncoderConfig()
+		encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	}
 
-	logger := slog.New(handler)
-	slog.SetDefault(logger)
+	core := zapcore.NewCore(
+		encoder,
+		zapcore.AddSync(os.Stdout),
+		level,
+	)
 
-	return logger
+	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+	zap.ReplaceGlobals(logger)
+
+	return logger.Sugar()
 }

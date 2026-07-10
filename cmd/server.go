@@ -21,7 +21,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/stonebirdjx/go-layout/internal/bootstrap"
+	"github.com/stonebirdjx/go-layout/internal/config"
+	"github.com/stonebirdjx/go-layout/internal/manager"
+	"github.com/stonebirdjx/go-layout/pkg/signals"
 )
 
 var cfgFile string
@@ -31,17 +33,30 @@ var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Start the backend application server",
 	Long:  `Start the backend application server with lifecycle management and dependency injection.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := bootstrap.RunServer(cfgFile); err != nil {
-			fmt.Fprintf(os.Stderr, "Server failed: %v\n", err)
-			os.Exit(1)
-		}
-	},
+	RunE:  runServer,
 }
 
 func init() {
 	rootCmd.AddCommand(serverCmd)
-
 	// Here you will define your flags and configuration settings.
 	serverCmd.Flags().StringVarP(&cfgFile, "config", "c", "configs/server.yaml", "config file path")
+}
+
+// runServer runs the server.
+func runServer(cmd *cobra.Command, args []string) error {
+	// 加载配
+	cfg, err := config.Load(cfgFile)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "load config error: %v", err)
+		return err
+	}
+
+	mgr := manager.NewManager(cfg)
+
+	// 启动
+	signalCtx := signals.SetupSignalHandler()
+	if err := mgr.Start(signalCtx); err != nil {
+		return err
+	}
+	return nil
 }

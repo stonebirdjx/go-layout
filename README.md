@@ -10,6 +10,18 @@ golang项目工程化
 # 项目架构
 ![](./assets/images/arch.drawio.png)
 
+# 一个简单的main函数
+```go
+package main
+
+import "github.com/stonebirdjx/go-layout/cmd"
+
+func main() {
+	cmd.Execute()
+}
+```
+> go 1.25以下需要 import _ "go.uber.org/automaxprocs"
+
 ## 启动过程
 ### 1.启动环境准备
 操作系统检查：确保依赖的系统资源、端口、文件权限等已就绪。
