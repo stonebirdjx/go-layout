@@ -1,4 +1,6 @@
 # log相关配置
 log:
+  # 日志级别，可选值：debug, info, warn, error 
   level: "debug"
+  # 日志输出格式，可选值：json, console
   format: "json"

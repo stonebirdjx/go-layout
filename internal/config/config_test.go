@@ -52,3 +52,56 @@ log:
 		t.Errorf("expected Log.Format to be 'console', got '%s'", cfg.Log.Format)
 	}
 }
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  Config
+		wantErr bool
+	}{
+		{
+			name: "valid debug json",
+			config: Config{
+				Log: LogOptions{Level: "debug", Format: "json"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid uppercase level and format",
+			config: Config{
+				Log: LogOptions{Level: "INFO", Format: "CONSOLE"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid level",
+			config: Config{
+				Log: LogOptions{Level: "trace", Format: "json"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid format",
+			config: Config{
+				Log: LogOptions{Level: "info", Format: "text"},
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty values",
+			config: Config{
+				Log: LogOptions{Level: "", Format: ""},
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.config.Validate()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

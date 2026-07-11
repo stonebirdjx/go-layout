@@ -17,6 +17,7 @@ limitations under the License.
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -30,6 +31,53 @@ type Config struct {
 type LogOptions struct {
 	Level  string `yaml:"level"`
 	Format string `yaml:"format"`
+}
+
+// Validate checks all configuration fields.
+func (c *Config) Validate() error {
+	if c == nil {
+		return fmt.Errorf("config is nil")
+	}
+
+	if err := c.Log.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+type logLevel string
+
+const (
+	logLevelDebug logLevel = "debug"
+	logLevelInfo  logLevel = "info"
+	logLevelWarn  logLevel = "warn"
+	logLevelError logLevel = "error"
+)
+
+type logFormat string
+
+const (
+	logFormatJSON    logFormat = "json"
+	logFormatConsole logFormat = "console"
+)
+
+// Validate checks that Level and Format are valid values.
+func (l LogOptions) Validate() error {
+	switch logLevel(l.Level) {
+	case logLevelDebug, logLevelInfo, logLevelWarn, logLevelError:
+	default:
+		return fmt.Errorf("invalid log level: %q (must be one of: %s, %s, %s, %s)",
+			l.Level, logLevelDebug, logLevelInfo, logLevelWarn, logLevelError)
+	}
+
+	switch logFormat(l.Format) {
+	case logFormatJSON, logFormatConsole:
+	default:
+		return fmt.Errorf("invalid log format: %q (must be one of: %s, %s)",
+			l.Format, logFormatJSON, logFormatConsole)
+	}
+
+	return nil
 }
 
 // Load loads the configuration from the given file path.

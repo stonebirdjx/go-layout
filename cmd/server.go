@@ -44,10 +44,15 @@ func init() {
 
 // runServer runs the server.
 func runServer(cmd *cobra.Command, args []string) error {
-	// 加载配
+	// 加载配置
 	cfg, err := config.Load(cfgFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "load config error: %v", err)
+		return err
+	}
+
+	if err := cfg.Validate(); err != nil {
+		fmt.Fprintf(os.Stderr, "validate config error: %v", err)
 		return err
 	}
 
