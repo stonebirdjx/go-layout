@@ -22,8 +22,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stonebirdjx/go-layout/internal/config"
+	"github.com/stonebirdjx/go-layout/internal/logger"
 	"github.com/stonebirdjx/go-layout/internal/manager"
 	"github.com/stonebirdjx/go-layout/pkg/signals"
+	"go.uber.org/zap"
 )
 
 var cfgFile string
@@ -51,17 +53,33 @@ func runServer(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// 校验配置
 	if err := cfg.Validate(); err != nil {
 		fmt.Fprintf(os.Stderr, "validate config error: %v", err)
 		return err
 	}
 
-	mgr := manager.NewManager(cfg)
+	// 初始化日志
+	zapLogger := logger.Init(cfg.Log)
+	defer zapLogger.Sync()
+
+	// 创建管理器
+	mgr := manager.NewManager(
+		manager.WithLogger(zapLogger),
+	)
+
+	// 校验管理器
+	if err := mgr.Validate(); err != nil {
+		zapLogger.Error("validate manager error", zap.Error(err))
+		return err
+	}
 
 	// 启动
 	signalCtx := signals.SetupSignalHandler()
 	if err := mgr.Start(signalCtx); err != nil {
+		zapLogger.Error("server failed to start", zap.Error(err))
 		return err
 	}
+
 	return nil
 }

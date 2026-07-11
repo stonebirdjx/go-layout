@@ -20,16 +20,17 @@ package manager
 
 import (
 	"context"
-
-	"github.com/stonebirdjx/go-layout/internal/config"
 )
 
 type Manager interface {
+	Validate() error
 	Start(ctx context.Context) error
 }
 
-func NewManager(cfg *config.Config) Manager {
-	return &controller{
-		cfg: cfg,
+func NewManager(ops ...Option) Manager {
+	c := &controller{}
+	for _, op := range ops {
+		op(c)
 	}
+	return c
 }

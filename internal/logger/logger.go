@@ -14,7 +14,7 @@ import (
 // Init initializes the global zap logger based on configuration.
 // When FilePath is set, logs are written to both stdout and a rotating file.
 // When FilePath is empty, logs are written to stdout only.
-func Init(cfg *config.LogOptions) *zap.SugaredLogger {
+func Init(cfg config.LogOptions) *zap.Logger {
 	var level zapcore.Level
 	switch cfg.Level {
 	case consts.LoggerLevelDebug:
@@ -68,5 +68,5 @@ func Init(cfg *config.LogOptions) *zap.SugaredLogger {
 	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 	zap.ReplaceGlobals(logger)
 
-	return logger.Sugar()
+	return logger
 }

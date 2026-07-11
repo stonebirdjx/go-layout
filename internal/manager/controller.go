@@ -20,14 +20,34 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/stonebirdjx/go-layout/internal/config"
+	"go.uber.org/zap"
 )
 
+type Option func(*controller)
+
+func WithLogger(logger *zap.Logger) Option {
+	return func(c *controller) {
+		c.logger = logger
+	}
+}
+
 type controller struct {
-	cfg *config.Config
+	logger *zap.Logger
+}
+
+func (c *controller) Validate() error {
+	if c == nil {
+		return fmt.Errorf("controller is nil")
+	}
+
+	if c.logger == nil {
+		return fmt.Errorf("controller's logger is nil")
+	}
+
+	return nil
 }
 
 func (c *controller) Start(ctx context.Context) error {
-	fmt.Println("controller start")
+	c.logger.Info("controller start")
 	return nil
 }
