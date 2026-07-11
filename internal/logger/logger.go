@@ -42,10 +42,12 @@ func Init(cfg *config.LogOptions) *zap.SugaredLogger {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	}
 
-	// 构建 WriteSyncer
-	stdoutSyncer := zapcore.AddSync(os.Stdout)
+	var syncers []zapcore.WriteSyncer
 
-	var core zapcore.Core
+	if cfg.EnableStdout {
+		syncers = append(syncers, zapcore.AddSync(os.Stdout))
+	}
+
 	if cfg.FilePath != "" {
 		fileSyncer := zapcore.AddSync(&lumberjack.Logger{
 			Filename:   cfg.FilePath,
@@ -54,15 +56,14 @@ func Init(cfg *config.LogOptions) *zap.SugaredLogger {
 			MaxAge:     cfg.MaxAge,
 			Compress:   cfg.Compress,
 		})
-		// 同时输出到 stdout 和文件
-		core = zapcore.NewCore(
-			encoder,
-			zapcore.NewMultiWriteSyncer(stdoutSyncer, fileSyncer),
-			level,
-		)
-	} else {
-		core = zapcore.NewCore(encoder, stdoutSyncer, level)
+		syncers = append(syncers, fileSyncer)
 	}
+
+	core := zapcore.NewCore(
+		encoder,
+		zapcore.NewMultiWriteSyncer(syncers...),
+		level,
+	)
 
 	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 	zap.ReplaceGlobals(logger)

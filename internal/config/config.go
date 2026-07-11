@@ -33,7 +33,9 @@ type Config struct {
 type LogOptions struct {
 	Level  string `yaml:"level"`
 	Format string `yaml:"format"`
-	// 日志文件路径，为空则只输出到 stdout
+	// 是否输出到标准输出
+	EnableStdout bool `yaml:"enable_stdout"`
+	// 日志文件路径，为空则只输出到 stdout (如果 enable_stdout 为 true)
 	FilePath string `yaml:"file_path"`
 	// 单个日志文件最大大小（MB）
 	MaxSize int `yaml:"max_size"`
@@ -71,6 +73,10 @@ func (l LogOptions) Validate() error {
 	default:
 		return fmt.Errorf("invalid log format: %q (must be one of: %s, %s)",
 			l.Format, consts.LoggerFormatJSON, consts.LoggerFormatConsole)
+	}
+
+	if !l.EnableStdout && l.FilePath == "" {
+		return fmt.Errorf("invalid log output: both enable_stdout and file_path are disabled/empty, log must have at least one output")
 	}
 
 	// 当指定了日志文件路径时，校验轮转参数
