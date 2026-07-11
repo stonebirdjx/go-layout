@@ -21,6 +21,8 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/stonebirdjx/go-layout/pkg/consts"
 )
 
 // Config represents the global configuration structure.
@@ -31,6 +33,16 @@ type Config struct {
 type LogOptions struct {
 	Level  string `yaml:"level"`
 	Format string `yaml:"format"`
+	// 日志文件路径，为空则只输出到 stdout
+	FilePath string `yaml:"file_path"`
+	// 单个日志文件最大大小（MB）
+	MaxSize int `yaml:"max_size"`
+	// 保留旧日志文件最大数量
+	MaxBackups int `yaml:"max_backups"`
+	// 保留旧日志文件最大天数
+	MaxAge int `yaml:"max_age"`
+	// 是否压缩旧日志文件
+	Compress bool `yaml:"compress"`
 }
 
 // Validate checks all configuration fields.
@@ -45,36 +57,33 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-type logLevel string
-
-const (
-	logLevelDebug logLevel = "debug"
-	logLevelInfo  logLevel = "info"
-	logLevelWarn  logLevel = "warn"
-	logLevelError logLevel = "error"
-)
-
-type logFormat string
-
-const (
-	logFormatJSON    logFormat = "json"
-	logFormatConsole logFormat = "console"
-)
-
-// Validate checks that Level and Format are valid values.
+// Validate checks that Level, Format and rotation parameters are valid.
 func (l LogOptions) Validate() error {
-	switch logLevel(l.Level) {
-	case logLevelDebug, logLevelInfo, logLevelWarn, logLevelError:
+	switch l.Level {
+	case consts.LoggerLevelDebug, consts.LoggerLevelInfo, consts.LoggerLevelWarn, consts.LoggerLevelError:
 	default:
 		return fmt.Errorf("invalid log level: %q (must be one of: %s, %s, %s, %s)",
-			l.Level, logLevelDebug, logLevelInfo, logLevelWarn, logLevelError)
+			l.Level, consts.LoggerLevelDebug, consts.LoggerLevelInfo, consts.LoggerLevelWarn, consts.LoggerLevelError)
 	}
 
-	switch logFormat(l.Format) {
-	case logFormatJSON, logFormatConsole:
+	switch l.Format {
+	case consts.LoggerFormatJSON, consts.LoggerFormatConsole:
 	default:
 		return fmt.Errorf("invalid log format: %q (must be one of: %s, %s)",
-			l.Format, logFormatJSON, logFormatConsole)
+			l.Format, consts.LoggerFormatJSON, consts.LoggerFormatConsole)
+	}
+
+	// 当指定了日志文件路径时，校验轮转参数
+	if l.FilePath != "" {
+		if l.MaxSize <= 0 {
+			return fmt.Errorf("invalid log max_size: %d (must be > 0 when file_path is set)", l.MaxSize)
+		}
+		if l.MaxBackups < 0 {
+			return fmt.Errorf("invalid log max_backups: %d (must be >= 0)", l.MaxBackups)
+		}
+		if l.MaxAge < 0 {
+			return fmt.Errorf("invalid log max_age: %d (must be >= 0)", l.MaxAge)
+		}
 	}
 
 	return nil

@@ -2,25 +2,28 @@ package logger
 
 import (
 	"os"
-	"strings"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/stonebirdjx/go-layout/internal/config"
+	"github.com/stonebirdjx/go-layout/pkg/consts"
 )
 
 // Init initializes the global zap logger based on configuration.
+// When FilePath is set, logs are written to both stdout and a rotating file.
+// When FilePath is empty, logs are written to stdout only.
 func Init(cfg *config.LogOptions) *zap.SugaredLogger {
 	var level zapcore.Level
-	switch strings.ToLower(cfg.Level) {
-	case "debug":
+	switch cfg.Level {
+	case consts.LoggerLevelDebug:
 		level = zapcore.DebugLevel
-	case "info":
+	case consts.LoggerLevelInfo:
 		level = zapcore.InfoLevel
-	case "warn":
+	case consts.LoggerLevelWarn:
 		level = zapcore.WarnLevel
-	case "error":
+	case consts.LoggerLevelError:
 		level = zapcore.ErrorLevel
 	default:
 		level = zapcore.InfoLevel
@@ -30,7 +33,7 @@ func Init(cfg *config.LogOptions) *zap.SugaredLogger {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	if cfg.Format == "json" {
+	if cfg.Format == consts.LoggerFormatJSON {
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	} else {
 		encoderConfig = zap.NewDevelopmentEncoderConfig()
@@ -39,11 +42,27 @@ func Init(cfg *config.LogOptions) *zap.SugaredLogger {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	}
 
-	core := zapcore.NewCore(
-		encoder,
-		zapcore.AddSync(os.Stdout),
-		level,
-	)
+	// 构建 WriteSyncer
+	stdoutSyncer := zapcore.AddSync(os.Stdout)
+
+	var core zapcore.Core
+	if cfg.FilePath != "" {
+		fileSyncer := zapcore.AddSync(&lumberjack.Logger{
+			Filename:   cfg.FilePath,
+			MaxSize:    cfg.MaxSize,
+			MaxBackups: cfg.MaxBackups,
+			MaxAge:     cfg.MaxAge,
+			Compress:   cfg.Compress,
+		})
+		// 同时输出到 stdout 和文件
+		core = zapcore.NewCore(
+			encoder,
+			zapcore.NewMultiWriteSyncer(stdoutSyncer, fileSyncer),
+			level,
+		)
+	} else {
+		core = zapcore.NewCore(encoder, stdoutSyncer, level)
+	}
 
 	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 	zap.ReplaceGlobals(logger)
