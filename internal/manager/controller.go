@@ -18,6 +18,7 @@ package manager
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/stonebirdjx/go-layout/internal/config"
 )
@@ -27,5 +28,6 @@ type controller struct {
 }
 
 func (c *controller) Start(ctx context.Context) error {
+	fmt.Println("controller start")
 	return nil
 }
