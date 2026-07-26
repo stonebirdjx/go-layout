@@ -22,7 +22,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/stonebirdjx/go-layout/pkg/consts"
+	"github.com/stonebirdjx/go-layout/consts"
 )
 
 // Config represents the global configuration structure.
