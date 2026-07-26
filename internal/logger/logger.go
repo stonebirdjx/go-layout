@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 
+	"github.com/stonebirdjx/go-layout/consts"
 	"github.com/stonebirdjx/go-layout/internal/config"
-	"github.com/stonebirdjx/go-layout/pkg/consts"
 )
 
 // Init initializes the global zap logger based on configuration.

@@ -24,7 +24,7 @@ import (
 	"github.com/stonebirdjx/go-layout/internal/config"
 	"github.com/stonebirdjx/go-layout/internal/logger"
 	"github.com/stonebirdjx/go-layout/internal/manager"
-	"github.com/stonebirdjx/go-layout/pkg/signals"
+	"github.com/stonebirdjx/go-layout/signals"
 	"go.uber.org/zap"
 )
 

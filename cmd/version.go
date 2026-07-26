@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/stonebirdjx/go-layout/pkg/consts"
+	"github.com/stonebirdjx/go-layout/consts"
 )
 
 // versionCmd represents the server version
