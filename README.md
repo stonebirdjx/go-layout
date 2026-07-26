@@ -1,3 +1,13 @@
+# 又一份 Go 项目布局指南？敬谢不敏。
+
+随着 Go 语言日益普及，开发者们正将其他语言（特别是 Java 和 Spring Boot）中的结构化包袱带入其中，并冠以“最佳实践”之名。
+
+如果你搜索“Go project layout”（Go 项目布局），难免会看到像臭名昭著的 `golang-standards/project-layout` 这样的仓库。这些模板推崇深层嵌套的目录结构、随意的架构分层（如 `service/`、`repository/`、`pkg/`）、臃肿的 Worker 池以及复杂的 Mock 框架。
+
+**这些并非 Go 语言的惯用模式，而是用 Go 语法写就的 Java 模式。** 它们与 Go 的设计理念背道而驰。Go 语言的设计初衷是追求简洁、可读性以及扁平且易于探索的 API。当你强行将 Spring Boot 风格的分层架构套用到 Go 上时，往往会引入循环依赖，导致控制流变得晦涩难懂，并破坏这门语言最迷人的特质——极致的简洁。
+
+power by [spf13](https://github.com/spf13)
+
 # go-layout
 golang项目工程化
 对于一个后端应用而言，它的启动和退出通常都是一些固定的动作
@@ -136,10 +146,3 @@ Server 配置：加载服务端监听配置（IP 地址、端口号、协议类�
 
 告警通知：如果服务非正常退出，向运维人员或告警系统发送通知。
 
-# 注意事项
-## automaxprocs
-go 1.25 + 不再需要使用
-```go
-// go 1.25 以下的版本需要引入automaxprocs
-import _ "go.uber.org/automaxprocs"
-```
