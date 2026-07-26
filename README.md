@@ -6,6 +6,24 @@
 
 **这些并非 Go 语言的惯用模式，而是用 Go 语法写就的 Java 模式。** 它们与 Go 的设计理念背道而驰。Go 语言的设计初衷是追求简洁、可读性以及扁平且易于探索的 API。当你强行将 Spring Boot 风格的分层架构套用到 Go 上时，往往会引入循环依赖，导致控制流变得晦涩难懂，并破坏这门语言最迷人的特质——极致的简洁。
 
+扁平化结构推荐
+```
+// 惯用做法：拥有独立领域包的服务
+myservice/
+├── main.go        # 负责组装各组件；不包含业务逻辑
+├── config/        # 配置结构体、环境变量加载
+├── auth/          # 身份验证、会话中间件
+├── db/            # 数据存储客户端及所有查询操作
+├── storage/       # 对象存储（S3、R2、GCS）
+├── billing/       # 支付服务商对接、账务记录
+├── jobs/          # 任务生命周期、队列调度、Worker 处理逻辑（同一领域，归于一包）
+├── web/           # HTTP 处理函数、HTML 模板、静态资源（设计上紧密耦合）
+├── transcribe/    # 领域特定的处理逻辑——独立的纯函数
+├── Makefile
+├── Dockerfile
+└── .env.example
+```
+
 power by [spf13](https://github.com/spf13)
 
 # go-layout
@@ -13,6 +31,10 @@ golang项目工程化
 对于一个后端应用而言，它的启动和退出通常都是一些固定的动作
 
 灵感来自 [controller-runtime](https://github.com/kubernetes-sigs/controller-runtime)
+
+- 上下文 (Context) ： `context.Context` 是否贯穿了所有 I/O、HTTP 或长时间运行的调用，是否指定了超时时间
+- 并发 (Concurrency) ： Goroutine 是否具有明确的所有权和明确的关闭路径，在输入规模不确定的“扇出”（fan-out）场景中，是否限制了并发度，避免数据竞争
+- 包设计 (Package design) ： 每个包是否具有单一且明确的领域职责？新增包是否有充分理由（而非仅仅扩展现有包），避免使用 `utils/` 或 `common/` 这类包名
 
 # 起停流程
 ![](./assets/images/bootstrap.drawio.png)
