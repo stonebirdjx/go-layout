@@ -110,7 +110,7 @@ func Load(path string) (*Config, error) {
 	// 这种写法略微增加了阅读代码时的心智负担。
 
 	// var cfg *Config
-	// if err := yaml.Unmarshal(data, &cfg); err != nil {
+	// if err := yaml.Unmarshal(data, cfg); err != nil {
 	// 	return nil, err
 	// }
 
